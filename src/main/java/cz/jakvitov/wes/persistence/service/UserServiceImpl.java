@@ -38,10 +38,13 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyInDatabaseException(email);
         }
         Optional<CityEntity> cityResult = cityService.findByNameAndCountry(cityName, countryISO);
-        CityEntity city = cityResult.get();
+        CityEntity city = null;
         //If city is not found, we need to create it in the database
         if (cityResult.isEmpty()){
             city = cityService.createNewCity(cityName, countryISO);
+        }
+        else {
+            cityResult.get();
         }
         UserEntity userEntity = new UserEntity();
         //For development purposes, the user is active when added
