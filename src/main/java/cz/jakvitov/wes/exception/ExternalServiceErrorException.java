@@ -37,4 +37,20 @@ public class ExternalServiceErrorException extends RuntimeException{
         this.httpStatusCode = httpStatusCode;
         this.externalService = externalService;
     }
+
+    public HttpStatusCode getHttpStatusCode() {
+        return httpStatusCode;
+    }
+
+    public void setHttpStatusCode(HttpStatusCode httpStatusCode) {
+        this.httpStatusCode = httpStatusCode;
+    }
+
+    public ExternalServices getExternalService() {
+        return externalService;
+    }
+
+    public void setExternalService(ExternalServices externalService) {
+        this.externalService = externalService;
+    }
 }

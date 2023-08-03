@@ -1,4 +1,4 @@
-package cz.jakvitov.wes.entity;
+package cz.jakvitov.wes.persistence.entity;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
