@@ -4,6 +4,7 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,7 +18,7 @@ public class CityEntity {
     private String countryISO;
 
     @OneToMany(mappedBy = "city")
-    private Set<UserEntity> users;
+    private Set<UserEntity> users = new HashSet<>();
 
     public CityEntity() {
     }

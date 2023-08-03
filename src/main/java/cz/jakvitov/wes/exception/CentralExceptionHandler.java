@@ -25,4 +25,14 @@ public class CentralExceptionHandler {
     public void handleGeneralException(Exception exc){
         logger.error("Exception occured: " + exc);
     }
+
+    @ExceptionHandler(EmailAlreadyInDatabaseException.class)
+    public void handleUserAlreadyInDatabase(EmailAlreadyInDatabaseException exc){
+        logger.info("User already in database: " + exc.email);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public void userNotFoundExceptionHandler(UserNotFoundException exc){
+        logger.info("User not found in database.");
+    }
 }

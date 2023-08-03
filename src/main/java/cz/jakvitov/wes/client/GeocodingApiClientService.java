@@ -6,6 +6,6 @@ import java.util.ArrayList;
 
 public interface GeocodingApiClientService {
 
-    public ArrayList<GeocodingCityInfoDto> getGeocodesForCity(String city, String countryISO);
+    public GeocodingCityInfoDto[] getGeocodesForCity(String city, String countryISO);
 
 }

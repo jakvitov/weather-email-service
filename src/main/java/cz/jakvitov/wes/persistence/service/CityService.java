@@ -13,4 +13,6 @@ public interface CityService {
 
     public Optional<CityEntity> findByNameAndCountry(String cityName, String countryISO);
 
+    public CityEntity updateCity(CityEntity city);
+
 }

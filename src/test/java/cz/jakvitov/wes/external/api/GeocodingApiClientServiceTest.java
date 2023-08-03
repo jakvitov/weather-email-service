@@ -18,8 +18,8 @@ public class GeocodingApiClientServiceTest {
     @Test
     @Disabled
     public void geocodingApiClientServiceTest(){
-        ArrayList<GeocodingCityInfoDto> geocodingCityInfoDto = geocodingApiClientService.getGeocodesForCity("Praha", "CZ");
-        assert !geocodingCityInfoDto.isEmpty();
+        GeocodingCityInfoDto[] geocodingCityInfoDto = geocodingApiClientService.getGeocodesForCity("Praha", "CZ");
+        assert geocodingCityInfoDto.length > 0;
     }
 
 }

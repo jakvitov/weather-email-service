@@ -30,20 +30,25 @@ public class CityServiceImpl implements CityService{
         CityEntity cityEntity = new CityEntity();
         cityEntity.setName(cityName);
         cityEntity.setCountryISO(countryISO);
-        ArrayList<GeocodingCityInfoDto> response = geocodingApiClientService.getGeocodesForCity(cityName, countryISO);
-        if (response.isEmpty()){
+        GeocodingCityInfoDto[] response = geocodingApiClientService.getGeocodesForCity(cityName, countryISO);
+        if (response.length == 0){
             throw new CityNotFoundException(cityName, countryISO);
         }
-        GeocodingCityInfoDto geocodingCityInfoDto = response.get(0);
+        GeocodingCityInfoDto geocodingCityInfoDto = response[0];
         CityId cityId = new CityId();
         cityId.setLatitude(geocodingCityInfoDto.getLatitude());
         cityId.setLongitude(geocodingCityInfoDto.getLongitude());
         cityEntity.setCityId(cityId);
-        return cityEntity;
+        return cityRepository.save(cityEntity);
     }
 
     @Override
     public Optional<CityEntity> findByNameAndCountry(String cityName, String countryISO) {
         return cityRepository.findCityByNameAndCountry(cityName, countryISO);
+    }
+
+    @Override
+    public CityEntity updateCity(CityEntity city) {
+        return cityRepository.save(city);
     }
 }

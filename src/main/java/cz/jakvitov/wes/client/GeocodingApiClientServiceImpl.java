@@ -37,14 +37,14 @@ public class GeocodingApiClientServiceImpl implements GeocodingApiClientService{
     }
 
     @Override
-    public ArrayList<GeocodingCityInfoDto> getGeocodesForCity(String city, String countryISO) {
+    public GeocodingCityInfoDto[] getGeocodesForCity(String city, String countryISO) {
         String uri = UriComponentsBuilder.fromHttpUrl(DEFAULT_URI)
                 .queryParam("city", city)
                 .queryParam("country", countryISO).toUriString();
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Api-Key", API_KEY);
         HttpEntity<String> httpEntity = new HttpEntity<>("parameters", headers);
-        ResponseEntity<ArrayList> response = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, ArrayList.class);
+        ResponseEntity<GeocodingCityInfoDto[]> response = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, GeocodingCityInfoDto[].class);
         if (response.getStatusCode().isError()){
             GeocodingErrorResponseDto errorResponseDto = restTemplate.getForObject(uri, GeocodingErrorResponseDto.class);
             throw new ExternalServiceErrorException(errorResponseDto.getError() + errorResponseDto.getMessage(), response.getStatusCode(), ExternalServices.NINJAS_GEOCODING_API);
