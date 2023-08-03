@@ -1,7 +1,7 @@
 package cz.jakvitov.wes.client;
 
-import cz.jakvitov.wes.dto.external.OpenMeteoErrorResponseDto;
-import cz.jakvitov.wes.dto.external.OpenMeteoWeatherForecastResponseDto;
+import cz.jakvitov.wes.dto.external.weather.OpenMeteoErrorResponseDto;
+import cz.jakvitov.wes.dto.external.weather.OpenMeteoWeatherForecastResponseDto;
 import cz.jakvitov.wes.dto.types.ExternalServices;
 import cz.jakvitov.wes.dto.types.WeatherOptions;
 import cz.jakvitov.wes.exception.ExternalServiceErrorException;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 @Service
 public class WeatherApiClientServiceImpl implements WeatherApiClientService{
 
-    final String defaultApiUrl = "https://api.open-meteo.com/v1/forecast";
+    private final String DEFAULT_API_URI = "https://api.open-meteo.com/v1/forecast";
 
     private final RestTemplate restTemplate;
 
@@ -28,7 +28,7 @@ public class WeatherApiClientServiceImpl implements WeatherApiClientService{
 
     @Override
     public OpenMeteoWeatherForecastResponseDto getHourlyWeatherForecast(Double latitude, Double longitude, Integer days) {
-        String uri = UriComponentsBuilder.fromHttpUrl(defaultApiUrl)
+        String uri = UriComponentsBuilder.fromHttpUrl(DEFAULT_API_URI)
                 .queryParam(WeatherOptions.LATITUDE.getValue(), latitude)
                 .queryParam(WeatherOptions.LONGITUDE.getValue(), longitude)
                 .queryParam(WeatherOptions.DAYS.getValue(), days)

@@ -1,7 +1,7 @@
-package cz.jakvitov.wes.external_api_test;
+package cz.jakvitov.wes.external.api;
 
 import cz.jakvitov.wes.client.WeatherApiClientService;
-import cz.jakvitov.wes.dto.external.OpenMeteoWeatherForecastResponseDto;
+import cz.jakvitov.wes.dto.external.weather.OpenMeteoWeatherForecastResponseDto;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

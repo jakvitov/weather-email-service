@@ -1,4 +1,4 @@
-package cz.jakvitov.wes.dto.external;
+package cz.jakvitov.wes.dto.external.weather;
 
 /**
  * Dto returned from open meteo in case of an error

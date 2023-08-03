@@ -1,6 +1,6 @@
 package cz.jakvitov.wes.client;
 
-import cz.jakvitov.wes.dto.external.OpenMeteoWeatherForecastResponseDto;
+import cz.jakvitov.wes.dto.external.weather.OpenMeteoWeatherForecastResponseDto;
 
 /**
  * Client for calling the open meteo api to get weather for a city

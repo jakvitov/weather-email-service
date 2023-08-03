@@ -15,11 +15,11 @@ import java.util.Properties;
 @Configuration
 public class MailSenderConfig {
 
-    @Value("email.client.username")
-    private String mailUsername;
+    @Value("${email.client.username}")
+    private String MAIL_USERNAME;
 
-    @Value("email.client.password")
-    private String mailPassword;
+    @Value("${email.client.password}")
+    private String MAIL_PASSWORD;
 
     @Bean
     public JavaMailSender javaMailSender(){
@@ -28,8 +28,8 @@ public class MailSenderConfig {
         javaMailSender.setPort(465);
         javaMailSender.setDefaultEncoding("UTF-8");
 
-        javaMailSender.setUsername(mailUsername);
-        javaMailSender.setPassword(mailPassword);
+        javaMailSender.setUsername(MAIL_USERNAME);
+        javaMailSender.setPassword(MAIL_PASSWORD);
 
         Properties props = javaMailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
