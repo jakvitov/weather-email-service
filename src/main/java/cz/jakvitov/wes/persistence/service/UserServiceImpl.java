@@ -83,6 +83,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String email, String password) {
+    public void deleteUser(String email) {
+        List<UserEntity> userEntities = userRepository.findAllByEmail(email);
+        if (userEntities.isEmpty()){
+            throw new UserNotFoundException(email);
+        }
+        userRepository.delete(userEntities.get(0));
+    }
+
+    @Override
+    public List<UserEntity> getActiveUsers() {
+        return userRepository.findAllActiveUsers();
     }
 }

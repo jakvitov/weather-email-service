@@ -3,6 +3,7 @@ package cz.jakvitov.wes.persistence.entity;
 import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Embeddable
 public class CityId implements Serializable {
@@ -42,5 +43,18 @@ public class CityId implements Serializable {
                 "latitude=" + latitude +
                 ", longitude=" + longitude +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CityId cityId = (CityId) o;
+        return Objects.equals(latitude, cityId.latitude) && Objects.equals(longitude, cityId.longitude);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(latitude, longitude);
     }
 }

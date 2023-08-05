@@ -1,7 +1,6 @@
 package cz.jakvitov.wes.persistence;
 
 import cz.jakvitov.wes.persistence.service.UserService;
-import org.hibernate.annotations.DialectOverride;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
