@@ -80,7 +80,7 @@ public class EmailFormatter {
                 dayInfoForEmailDto.setAverageNoonTemperature(dayInfoForEmailDto.getAverageNoonTemperature() + hourlyInformationDtos.getTemperature2m().get(i));
             }
             else if (k > NOON_END && k <= AFTERNOON_END){
-                dayInfoForEmailDto.setAverageAfternoonTemperature(dayInfoForEmailDto.getAverageNoonTemperature() + hourlyInformationDtos.getTemperature2m().get(i));
+                dayInfoForEmailDto.setAverageAfternoonTemperature(dayInfoForEmailDto.getAverageAfternoonTemperature() + hourlyInformationDtos.getTemperature2m().get(i));
             }
             //Temperature > < max/min of the day
             if (hourlyInformationDtos.getTemperature2m().get(i) < dayInfoForEmailDto.getMinTemperature()){
@@ -93,7 +93,7 @@ public class EmailFormatter {
         //Calculate average with devision of the previous sum
         dayInfoForEmailDto.setAverageMoningTemperature(dayInfoForEmailDto.getAverageMoningTemperature() / (MORNING_END - MORNING_START));
         dayInfoForEmailDto.setAverageNoonTemperature(dayInfoForEmailDto.getAverageNoonTemperature() / (NOON_END - MORNING_END));
-        dayInfoForEmailDto.setAverageAfternoonTemperature(dayInfoForEmailDto.getAverageAfternoonTemperature() / (AFTERNOON_END / NOON_END));
+        dayInfoForEmailDto.setAverageAfternoonTemperature(dayInfoForEmailDto.getAverageAfternoonTemperature() / (AFTERNOON_END - NOON_END));
         dayInfoForEmailDto.setImportantWeatherCodes(importantWeatherCodeHours);
         dayInfoForEmailDto.setDay(LocalDate.from(hourlyInformationDtos.getTime().get(0)));
         return dayInfoForEmailDto;

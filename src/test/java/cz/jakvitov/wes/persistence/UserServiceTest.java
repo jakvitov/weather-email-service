@@ -24,4 +24,9 @@ public class UserServiceTest {
         userService.updateUserCity("test@gmail.com", "Berlin", "GE");
     }
 
+    @Test
+    @Disabled
+    public void deleteUser(){
+        userService.deleteUser("test@gmail.com");
+    }
 }

@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
             city = cityService.createNewCity(cityName, countryISO);
         }
         else {
-            cityResult.get();
+            city = cityResult.get();
         }
         UserEntity userEntity = new UserEntity();
         //For development purposes, the user is active when added

@@ -31,6 +31,15 @@ public class ScheduledEmailServiceImpl implements ScheduledEmailService{
 
     private final EmailService emailService;
 
+    @Value("${email.client.username}")
+    private String emailBotName;
+
+    @Value("${email.client.retry.count}")
+    private Integer retryCount;
+
+    @Value("${email.client.retry.delay}")
+    private Integer retryDelay;
+
     @Autowired
     public ScheduledEmailServiceImpl(UserService userService, EmailFormatter emailFormatter, WeatherApiClientService weatherApiClientService, EmailService emailService) {
         this.userService = userService;
@@ -39,11 +48,8 @@ public class ScheduledEmailServiceImpl implements ScheduledEmailService{
         this.emailService = emailService;
     }
 
-    @Value("${email.client.username}")
-    private String emailBotName;
-
     @Override
-    public void sendEmailsToActiveUsers() throws TemplateException, IOException, MessagingException {
+    public void sendEmailsToActiveUsers() throws TemplateException, IOException, MessagingException, InterruptedException {
         List<UserEntity> activeUsers = userService.getActiveUsers();
         Map<CityEntity, Set<UserEntity>> usersByCity = UserUtils.sortUsersByCity(activeUsers);
         for (CityEntity city : usersByCity.keySet()){
@@ -53,7 +59,7 @@ public class ScheduledEmailServiceImpl implements ScheduledEmailService{
             for (UserEntity user : usersByCity.get(city)){
                 emailDto.setDest(user.getEmail());
                 emailDto.setFrom(emailBotName);
-                emailService.sendEmail(emailDto);
+                emailService.sendEmailWithRetryCount(emailDto, retryCount, retryDelay);
             }
         }
     }

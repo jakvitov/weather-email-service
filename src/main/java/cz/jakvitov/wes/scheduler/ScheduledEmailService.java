@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public interface ScheduledEmailService {
 
-    public void sendEmailsToActiveUsers() throws TemplateException, IOException, MessagingException;
+    public void sendEmailsToActiveUsers() throws TemplateException, IOException, MessagingException, InterruptedException;
 
 
 }

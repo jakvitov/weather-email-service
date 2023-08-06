@@ -22,11 +22,15 @@ public class MonitoredError {
 
     private String stack;
 
+    private String exceptionInfo;
+
     private ErrorLevel errorLevel;
 
     private LocalDateTime errorTime;
 
     private ExternalServices externalService;
+
+    private String service;
 
     public MonitoredError() {
     }
@@ -85,5 +89,21 @@ public class MonitoredError {
 
     public void setExternalService(ExternalServices externalService) {
         this.externalService = externalService;
+    }
+
+    public String getExceptionInfo() {
+        return exceptionInfo;
+    }
+
+    public void setExceptionInfo(String exceptionInfo) {
+        this.exceptionInfo = exceptionInfo;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 }
