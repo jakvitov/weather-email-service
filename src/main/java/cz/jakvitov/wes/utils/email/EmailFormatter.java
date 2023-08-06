@@ -6,6 +6,7 @@ import cz.jakvitov.wes.dto.external.weather.OpenMeteoWeatherForecastResponseDto;
 import cz.jakvitov.wes.dto.internal.DayInfoForEmailDto;
 import cz.jakvitov.wes.dto.internal.EmailDto;
 import cz.jakvitov.wes.dto.types.WeatherCode;
+import freemarker.core.Environment;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,6 +43,16 @@ public class EmailFormatter {
     @Autowired
     public EmailFormatter(FreeMarkerConfig freeMarkerConfig) {
         this.freeMarkerConfig = freeMarkerConfig;
+    }
+
+    //Proccess a FreeMarker template a produce a utf-8 string from it
+    private String processTemplate(Template template,  Map root) throws TemplateException, IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Writer writer = new OutputStreamWriter(byteArrayOutputStream, StandardCharsets.UTF_8);
+        Environment environment = template.createProcessingEnvironment(root, writer);
+        environment.setOutputEncoding("UTF-8");
+        environment.process();
+        return byteArrayOutputStream.toString(StandardCharsets.UTF_8);
     }
 
     private DayInfoForEmailDto getInfoForDayFromWeatherApiResponse(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto){
@@ -118,9 +130,7 @@ public class EmailFormatter {
         root.put("morningTemperature", dayInfoForEmailDto.getAverageMoningTemperature());
         root.put("noonTemperature", dayInfoForEmailDto.getAverageNoonTemperature());
         root.put("afternoonTemperature", dayInfoForEmailDto.getAverageAfternoonTemperature());
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        template.process(root, new OutputStreamWriter(byteArrayOutputStream));
-        return byteArrayOutputStream.toString(StandardCharsets.UTF_8);
+        return this.processTemplate(template, root);
     }
 
     private String formatSpecialWeatherCodesForHeader(DayInfoForEmailDto dayInfoForEmailDto){
@@ -146,9 +156,7 @@ public class EmailFormatter {
         root.put("minTemperature", dayInfoForEmailDto.getMinTemperature());
         root.put("maxTemperature", dayInfoForEmailDto.getMaxTemperature());
         root.put("specialWeatherCodes", formatSpecialWeatherCodesForHeader(dayInfoForEmailDto));
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        template.process(root, new OutputStreamWriter(byteArrayOutputStream));
-        return byteArrayOutputStream.toString(StandardCharsets.UTF_8);
+        return this.processTemplate(template, root);
     }
 
     public void fillEmailDtoWithWeather(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto, EmailDto emailDto, String cityName) throws TemplateException, IOException {
