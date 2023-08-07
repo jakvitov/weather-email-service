@@ -50,6 +50,7 @@ public class ScheduledEmailServiceImpl implements ScheduledEmailService{
     }
 
     @Override
+    @Scheduled(cron = "0 0 18 * * ?")
     public void sendEmailsToActiveUsers() throws TemplateException, IOException, MessagingException, InterruptedException {
         List<UserEntity> activeUsers = userService.getActiveUsers();
         Map<CityEntity, Set<UserEntity>> usersByCity = UserUtils.sortUsersByCity(activeUsers);
