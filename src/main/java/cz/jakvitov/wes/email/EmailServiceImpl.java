@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -35,12 +36,19 @@ public class EmailServiceImpl implements EmailService{
     }
 
     @Override
+    @Async
     public void sendEmailWithRetryCount(EmailDto emailDto, int retryCount, int delayInMs) throws MessagingException, InterruptedException {
         int attempts = 0;
         while (true) {
             try {
                 attempts ++;
-                this.sendEmail(emailDto);
+                MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+                MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                messageHelper.setFrom(emailDto.getFrom());
+                messageHelper.setTo(emailDto.getDest());
+                messageHelper.setSubject(emailDto.getSubject());
+                messageHelper.setText(emailDto.getText(), true);
+                javaMailSender.send(mimeMessage);
                 break;
             }
             catch (MessagingException messagingException){
