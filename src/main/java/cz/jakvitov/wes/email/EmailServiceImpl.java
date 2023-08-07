@@ -36,19 +36,13 @@ public class EmailServiceImpl implements EmailService{
     }
 
     @Override
-    @Async
+    @Async("emailSenderTaskExecutor")
     public void sendEmailWithRetryCount(EmailDto emailDto, int retryCount, int delayInMs) throws MessagingException, InterruptedException {
         int attempts = 0;
         while (true) {
             try {
                 attempts ++;
-                MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-                MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                messageHelper.setFrom(emailDto.getFrom());
-                messageHelper.setTo(emailDto.getDest());
-                messageHelper.setSubject(emailDto.getSubject());
-                messageHelper.setText(emailDto.getText(), true);
-                javaMailSender.send(mimeMessage);
+                sendEmail(emailDto);
                 break;
             }
             catch (MessagingException messagingException){
