@@ -6,6 +6,7 @@ import cz.jakvitov.wes.dto.types.ExternalServices;
 import cz.jakvitov.wes.dto.types.WeatherOptions;
 import cz.jakvitov.wes.exception.ExternalServiceErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class WeatherApiClientServiceImpl implements WeatherApiClientService{
     }
 
     @Override
+    @Cacheable(value = "weatherCache", keyGenerator = "defaultKeyGenerator")
     public OpenMeteoWeatherForecastResponseDto getHourlyWeatherForecast(Double latitude, Double longitude, Integer days) {
         String uri = UriComponentsBuilder.fromHttpUrl(DEFAULT_API_URI)
                 .queryParam(WeatherOptions.LATITUDE.getValue(), latitude)

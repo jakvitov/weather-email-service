@@ -14,7 +14,7 @@ public class OpenMeteoClientTest {
     private WeatherApiClientService weatherApiClientService;
 
     @Test
-    @Disabled
+//    @Disabled
     public void getPragueWeather(){
         OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto = weatherApiClientService.getHourlyWeatherForecast(50.4, 14.1, 2);
         assert openMeteoWeatherForecastResponseDto.getHourly() != null;

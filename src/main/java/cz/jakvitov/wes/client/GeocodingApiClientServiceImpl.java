@@ -6,6 +6,7 @@ import cz.jakvitov.wes.dto.types.ExternalServices;
 import cz.jakvitov.wes.exception.ExternalServiceErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -37,6 +38,7 @@ public class GeocodingApiClientServiceImpl implements GeocodingApiClientService{
     }
 
     @Override
+    @Cacheable(value = "geocodesCache", keyGenerator = "defaultKeyGenerator")
     public GeocodingCityInfoDto[] getGeocodesForCity(String city, String countryISO) {
         String uri = UriComponentsBuilder.fromHttpUrl(DEFAULT_URI)
                 .queryParam("city", city)

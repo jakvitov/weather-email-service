@@ -4,11 +4,9 @@ import cz.jakvitov.wes.client.WeatherApiClientService;
 import cz.jakvitov.wes.dto.external.weather.OpenMeteoWeatherForecastResponseDto;
 import cz.jakvitov.wes.dto.internal.EmailDto;
 import cz.jakvitov.wes.email.EmailService;
-import cz.jakvitov.wes.persistence.entity.CityEntity;
 import cz.jakvitov.wes.persistence.entity.UserEntity;
 import cz.jakvitov.wes.persistence.service.UserService;
 import cz.jakvitov.wes.utils.email.EmailFormatter;
-import cz.jakvitov.wes.utils.user.UserUtils;
 import freemarker.template.TemplateException;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Service
 public class ScheduledEmailServiceImpl implements ScheduledEmailService{
@@ -53,16 +49,14 @@ public class ScheduledEmailServiceImpl implements ScheduledEmailService{
     @Scheduled(cron = "0 0 18 * * ?")
     public void sendEmailsToActiveUsers() throws TemplateException, IOException, MessagingException, InterruptedException {
         List<UserEntity> activeUsers = userService.getActiveUsers();
-        Map<CityEntity, Set<UserEntity>> usersByCity = UserUtils.sortUsersByCity(activeUsers);
-        for (CityEntity city : usersByCity.keySet()){
+        for (UserEntity user : activeUsers){
+            //Due to redis caching, we can just ask for weather for each user instead of grouping the users by city
+            OpenMeteoWeatherForecastResponseDto weatherForecastResponseDto = weatherApiClientService.getHourlyWeatherForecast(user.getCity().getCityId().getLatitude(), user.getCity().getCityId().getLongitude(), 2);
             EmailDto emailDto = new EmailDto();
-            OpenMeteoWeatherForecastResponseDto cityForecast = weatherApiClientService.getHourlyWeatherForecast(city.getCityId().getLatitude(), city.getCityId().getLongitude(), 2);
-            emailFormatter.fillEmailDtoWithWeather(cityForecast, emailDto, city.getName());
-            for (UserEntity user : usersByCity.get(city)){
-                emailDto.setDest(user.getEmail());
-                emailDto.setFrom(emailBotName);
-                emailService.sendEmailWithRetryCount(emailDto, retryCount, retryDelay);
-            }
+            this.emailFormatter.fillEmailDtoWithWeather(weatherForecastResponseDto, emailDto, user.getCity().getName());
+            emailDto.setFrom(emailBotName);
+            emailDto.setDest(user.getEmail());
+            this.emailService.sendEmailWithRetryCount(emailDto, retryCount, retryDelay);
         }
     }
 
