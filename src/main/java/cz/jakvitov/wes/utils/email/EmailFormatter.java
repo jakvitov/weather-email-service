@@ -10,6 +10,7 @@ import freemarker.core.Environment;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -159,10 +160,14 @@ public class EmailFormatter {
         return this.processTemplate(template, root);
     }
 
-    public void fillEmailDtoWithWeather(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto, EmailDto emailDto, String cityName) throws TemplateException, IOException {
+    //The emails for the one city are the same, so we can cache them
+    @Cacheable(value = "cityEmailCache", keyGenerator = "defaultKeyGenerator")
+    public EmailDto fillEmailDtoWithWeather(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto, String cityName) throws TemplateException, IOException {
+        EmailDto emailDto = new EmailDto();
         DayInfoForEmailDto dayInfoForEmailDto = getInfoForDayFromWeatherApiResponse(openMeteoWeatherForecastResponseDto);
         emailDto.setText(formatEmailTextFromForecast(openMeteoWeatherForecastResponseDto, cityName));
         emailDto.setSubject(formatHeaderTextForEmail(dayInfoForEmailDto, cityName));
+        return emailDto;
     }
 
 }
