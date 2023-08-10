@@ -4,6 +4,9 @@ public class UserNotFoundException extends RuntimeException{
 
     private String email;
 
+    public UserNotFoundException() {
+    }
+
     public UserNotFoundException(String email) {
         this.email = email;
     }

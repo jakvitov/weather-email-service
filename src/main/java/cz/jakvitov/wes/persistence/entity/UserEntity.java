@@ -20,6 +20,10 @@ public class UserEntity {
 
     private Boolean active;
 
+    private String activationCode;
+
+    private String deactivationCode;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumns({
             @JoinColumn(name = "city_latitude", referencedColumnName = "latitude"),
@@ -76,5 +80,21 @@ public class UserEntity {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
+    }
+
+    public String getDeactivationCode() {
+        return deactivationCode;
+    }
+
+    public void setDeactivationCode(String deactivationCode) {
+        this.deactivationCode = deactivationCode;
     }
 }

@@ -1,11 +1,15 @@
 package cz.jakvitov.wes.persistence.service;
 
 import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import cz.jakvitov.wes.dto.controller.DeactivateUserResponse;
+import cz.jakvitov.wes.dto.types.ResponseState;
 import cz.jakvitov.wes.exception.EmailAlreadyInDatabaseException;
 import cz.jakvitov.wes.exception.UserNotFoundException;
 import cz.jakvitov.wes.persistence.entity.CityEntity;
 import cz.jakvitov.wes.persistence.entity.UserEntity;
 import cz.jakvitov.wes.persistence.repository.UserRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,6 +28,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final CityService cityService;
+
+    private final Logger logger = LogManager.getLogger(UserService.class);
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, CityService cityService) {
@@ -94,5 +100,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserEntity> getActiveUsers() {
         return userRepository.findAllActiveUsers();
+    }
+
+    @Override
+    public DeactivateUserResponse deactivateUserByDeactivationCode(String deactivationCode) {
+        List<UserEntity> userEntities = userRepository.findUserEntityByDeactivationCode(deactivationCode);
+        if (userEntities.isEmpty()){
+            throw new UserNotFoundException();
+        }
+        if (userEntities.size() > 1){
+            throw new RuntimeException("Multiple users found with one deactivation code:"  + deactivationCode);
+        }
+        UserEntity user = userEntities.get(0);
+        if (!user.getDeactivationCode().equals(deactivationCode)){
+            throw new UserNotFoundException();
+        }
+        DeactivateUserResponse response = new DeactivateUserResponse();
+        user.setActive(false);
+        userRepository.save(user);
+        response.setUserEmail(response.userEmail);
+        response.setResponseState(ResponseState.OK);
+        return response;
     }
 }
