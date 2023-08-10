@@ -1,7 +1,6 @@
 package cz.jakvitov.wes.persistence.service;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
-import cz.jakvitov.wes.dto.controller.DeactivateUserResponse;
+import cz.jakvitov.wes.dto.controller.ActivationUserResponse;
 import cz.jakvitov.wes.dto.types.ResponseState;
 import cz.jakvitov.wes.exception.EmailAlreadyInDatabaseException;
 import cz.jakvitov.wes.exception.UserNotFoundException;
@@ -106,8 +105,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DeactivateUserResponse deactivateUserByDeactivationCode(String deactivationCode) {
-        DeactivateUserResponse response = new DeactivateUserResponse();
+    public ActivationUserResponse deactivateUserByDeactivationCode(String deactivationCode) {
+        ActivationUserResponse response = new ActivationUserResponse();
 
         List<UserEntity> userEntities = userRepository.findUserEntityByDeactivationCode(deactivationCode);
         if (userEntities.isEmpty()){
@@ -122,10 +121,36 @@ public class UserServiceImpl implements UserService {
             response.setUserEmail(user.getEmail());
             return response;
         }
-        if (!user.getDeactivationCode().equals(deactivationCode)){
+        user.setActive(false);
+        //We generate new activation and deactivation codes
+        user.setActivationCode(UUID.randomUUID().toString());
+        user.setDeactivationCode(UUID.randomUUID().toString());
+        userRepository.save(user);
+        response.setUserEmail(user.getEmail());
+        response.setResponseState(ResponseState.OK);
+        return response;
+    }
+
+    @Override
+    public ActivationUserResponse activateUserByActivatinCode(String activationCode) {
+        ActivationUserResponse response = new ActivationUserResponse();
+        List<UserEntity> userEntities = userRepository.findUserEntityByActivationCode(activationCode);
+        if (userEntities.isEmpty()){
             throw new UserNotFoundException();
         }
-        user.setActive(false);
+        if (userEntities.size() > 1){
+            throw new RuntimeException("Multiple users found with one activation code:"  + activationCode);
+        }
+        UserEntity user = userEntities.get(0);
+        if (user.getActive()){
+            response.setResponseState(ResponseState.OK);
+            response.setUserEmail(user.getEmail());
+            return response;
+        }
+        user.setActive(true);
+        //We generate new activation and deactivation codes
+        user.setActivationCode(UUID.randomUUID().toString());
+        user.setDeactivationCode(UUID.randomUUID().toString());
         userRepository.save(user);
         response.setUserEmail(user.getEmail());
         response.setResponseState(ResponseState.OK);

@@ -1,10 +1,10 @@
 package cz.jakvitov.wes.dto.controller;
 
-public class DeactivateUserResponse extends AbstractControllerResponse{
+public class ActivationUserResponse extends AbstractControllerResponse{
 
     public String userEmail;
 
-    public DeactivateUserResponse() {
+    public ActivationUserResponse() {
         super();
     }
 

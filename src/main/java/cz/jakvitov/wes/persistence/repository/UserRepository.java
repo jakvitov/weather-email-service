@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     public List<UserEntity> findUserEntityByDeactivationCode(String deactivationCode);
 
+    public List<UserEntity>  findUserEntityByActivationCode(String activationCode);
+
 }

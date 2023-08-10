@@ -1,6 +1,6 @@
 package cz.jakvitov.wes.persistence.service;
 
-import cz.jakvitov.wes.dto.controller.DeactivateUserResponse;
+import cz.jakvitov.wes.dto.controller.ActivationUserResponse;
 import cz.jakvitov.wes.persistence.entity.UserEntity;
 
 import java.util.List;
@@ -15,6 +15,8 @@ public interface UserService {
 
     public List<UserEntity> getActiveUsers();
 
-    public DeactivateUserResponse deactivateUserByDeactivationCode(String deactivationCode);
+    public ActivationUserResponse deactivateUserByDeactivationCode(String deactivationCode);
+
+    public ActivationUserResponse activateUserByActivatinCode(String activationCode);
 
 }

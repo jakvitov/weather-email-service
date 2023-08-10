@@ -1,6 +1,6 @@
 package cz.jakvitov.wes.controller;
 
-import cz.jakvitov.wes.dto.controller.DeactivateUserResponse;
+import cz.jakvitov.wes.dto.controller.ActivationUserResponse;
 import cz.jakvitov.wes.dto.types.ResponseState;
 import cz.jakvitov.wes.exception.UserNotFoundException;
 import cz.jakvitov.wes.persistence.service.UserService;
@@ -28,20 +28,32 @@ public class UserController {
     }
 
     @PostMapping("/deactivate/{deactivationCode}")
-    public ResponseEntity<DeactivateUserResponse> deactivateUser(@PathVariable(value = "deactivationCode") String deactivationCode){
-        DeactivateUserResponse deactivateUserResponse = new DeactivateUserResponse();
+    public ResponseEntity<ActivationUserResponse> deactivateUser(@PathVariable(value = "deactivationCode") String deactivationCode) {
+        ActivationUserResponse activationUserResponse = new ActivationUserResponse();
         try {
-            deactivateUserResponse = userService.deactivateUserByDeactivationCode(deactivationCode);
-            return new ResponseEntity<>(deactivateUserResponse, HttpStatus.valueOf(200));
-        }
-        catch (UserNotFoundException exc){
-            deactivateUserResponse.setResponseState(ResponseState.USER_NOT_FOUND);
-            return new ResponseEntity<>(deactivateUserResponse, HttpStatusCode.valueOf(404));
-        }
-        catch (Exception exception){
-            deactivateUserResponse.setResponseState(ResponseState.ERROR);
-            return new ResponseEntity<>(deactivateUserResponse, HttpStatusCode.valueOf(500));
+            activationUserResponse = userService.deactivateUserByDeactivationCode(deactivationCode);
+            return new ResponseEntity<>(activationUserResponse, HttpStatus.valueOf(200));
+        } catch (UserNotFoundException exc) {
+            activationUserResponse.setResponseState(ResponseState.USER_NOT_FOUND);
+            return new ResponseEntity<>(activationUserResponse, HttpStatusCode.valueOf(404));
+        } catch (Exception exception) {
+            activationUserResponse.setResponseState(ResponseState.ERROR);
+            return new ResponseEntity<>(activationUserResponse, HttpStatusCode.valueOf(500));
         }
     }
 
+    @PostMapping("/activate/{activationCode}")
+    public ResponseEntity<ActivationUserResponse> activateUser(@PathVariable(value = "activationCode") String activationCode) {
+        ActivationUserResponse response = new ActivationUserResponse();
+        try {
+            response = userService.activateUserByActivatinCode(activationCode);
+            return new ResponseEntity<>(response, HttpStatus.valueOf(200));
+        } catch (UserNotFoundException exc) {
+            response.setResponseState(ResponseState.USER_NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(404));
+        } catch (Exception exception) {
+            response.setResponseState(ResponseState.ERROR);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(500));
+        }
+    }
 }
