@@ -1,6 +1,8 @@
 package cz.jakvitov.wes.persistence.service;
 
 import cz.jakvitov.wes.dto.controller.ActivationUserResponse;
+import cz.jakvitov.wes.dto.controller.UserCreationRequest;
+import cz.jakvitov.wes.dto.controller.UserCreationResponse;
 import cz.jakvitov.wes.dto.types.ResponseState;
 import cz.jakvitov.wes.exception.EmailAlreadyInDatabaseException;
 import cz.jakvitov.wes.exception.UserNotFoundException;
@@ -10,6 +12,7 @@ import cz.jakvitov.wes.persistence.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +34,13 @@ public class UserServiceImpl implements UserService {
 
     private final Logger logger = LogManager.getLogger(UserService.class);
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CityService cityService) {
+    public UserServiceImpl(UserRepository userRepository, CityService cityService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.cityService = cityService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -53,8 +59,7 @@ public class UserServiceImpl implements UserService {
             city = cityResult.get();
         }
         UserEntity userEntity = new UserEntity();
-        //For development purposes, the user is active when added
-        userEntity.setActive(true);
+        userEntity.setActive(false);
         userEntity.setEmail(email);
         userEntity.setPassword(password);
         userEntity.setChanged(LocalDateTime.now());
@@ -153,6 +158,16 @@ public class UserServiceImpl implements UserService {
         user.setDeactivationCode(UUID.randomUUID().toString());
         userRepository.save(user);
         response.setUserEmail(user.getEmail());
+        response.setResponseState(ResponseState.OK);
+        return response;
+    }
+
+    @Override
+    public UserCreationResponse crateUser(UserCreationRequest userCreationRequest) {
+        String password = passwordEncoder.encode(userCreationRequest.getPassword());
+        UserEntity user = this.createUser(userCreationRequest.getEmail(), userCreationRequest.getCityName(), userCreationRequest.getCountryISO(), password);
+        UserCreationResponse response = new UserCreationResponse();
+        response.setEmail(user.getEmail());
         response.setResponseState(ResponseState.OK);
         return response;
     }

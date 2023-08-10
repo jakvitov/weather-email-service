@@ -4,6 +4,7 @@ public enum ResponseState {
 
     OK,
     ERROR,
-    USER_NOT_FOUND
+    USER_NOT_FOUND,
+    USER_ALREADY_EXISTS
 
 }

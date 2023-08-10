@@ -13,6 +13,8 @@ public abstract class AbstractControllerResponse {
 
     private ResponseState responseState;
 
+    private Long errorId;
+
     public AbstractControllerResponse() {
         this.generatedAt = LocalDateTime.now();
     }
@@ -31,5 +33,13 @@ public abstract class AbstractControllerResponse {
 
     public void setResponseState(ResponseState responseState) {
         this.responseState = responseState;
+    }
+
+    public Long getErrorId() {
+        return errorId;
+    }
+
+    public void setErrorId(Long errorId) {
+        this.errorId = errorId;
     }
 }
