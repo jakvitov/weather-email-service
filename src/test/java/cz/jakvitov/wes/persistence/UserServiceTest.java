@@ -13,9 +13,9 @@ public class UserServiceTest {
     public UserService userService;
 
     @Test
-    @Disabled
+//    @Disabled
     public void createUserTest(){
-        userService.createUser("test@gmail.com", "Praha", "CZ", "DKJLJFD");
+        userService.createUser("jakvitov@gmail.com", "Praha", "CZ", "DKJLJFD");
     }
 
     @Test

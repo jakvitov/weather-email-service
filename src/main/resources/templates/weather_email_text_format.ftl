@@ -4,3 +4,4 @@
 <p>Teplota ráno: ${morningTemperature}°C</p>
 <p>Teplota odpoledne: ${noonTemperature}°C</p>
 <p>Teplota večer: ${afternoonTemperature}°C</p>
+<p style="font-size: 10px; color:gray">Odhlásit emaily: ${unsubscribeUrl}</p>

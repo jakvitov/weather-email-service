@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service for managing the user entities
@@ -59,6 +60,8 @@ public class UserServiceImpl implements UserService {
         userEntity.setPassword(password);
         userEntity.setChanged(LocalDateTime.now());
         userEntity.setCity(city);
+        userEntity.setDeactivationCode(UUID.randomUUID().toString());
+        userEntity.setActivationCode(UUID.randomUUID().toString());
         city.getUsers().add(userEntity);
         userEntity = userRepository.save(userEntity);
         return userEntity;
@@ -104,6 +107,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DeactivateUserResponse deactivateUserByDeactivationCode(String deactivationCode) {
+        DeactivateUserResponse response = new DeactivateUserResponse();
+
         List<UserEntity> userEntities = userRepository.findUserEntityByDeactivationCode(deactivationCode);
         if (userEntities.isEmpty()){
             throw new UserNotFoundException();
@@ -112,13 +117,17 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Multiple users found with one deactivation code:"  + deactivationCode);
         }
         UserEntity user = userEntities.get(0);
+        if (!user.getActive()){
+            response.setResponseState(ResponseState.OK);
+            response.setUserEmail(user.getEmail());
+            return response;
+        }
         if (!user.getDeactivationCode().equals(deactivationCode)){
             throw new UserNotFoundException();
         }
-        DeactivateUserResponse response = new DeactivateUserResponse();
         user.setActive(false);
         userRepository.save(user);
-        response.setUserEmail(response.userEmail);
+        response.setUserEmail(user.getEmail());
         response.setResponseState(ResponseState.OK);
         return response;
     }
