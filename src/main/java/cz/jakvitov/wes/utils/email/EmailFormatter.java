@@ -6,12 +6,16 @@ import cz.jakvitov.wes.dto.external.weather.OpenMeteoWeatherForecastResponseDto;
 import cz.jakvitov.wes.dto.internal.DayInfoForEmailDto;
 import cz.jakvitov.wes.dto.internal.EmailDto;
 import cz.jakvitov.wes.dto.types.WeatherCode;
+import cz.jakvitov.wes.persistence.entity.UserEntity;
 import freemarker.core.Environment;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,11 +43,17 @@ public class EmailFormatter {
     private final Integer NOON_END = 18;
     private final Integer AFTERNOON_END = 23;
 
+    @Value("${url.redirect}")
+    private String baseURL;
+
     private final FreeMarkerConfig freeMarkerConfig;
 
+    private final ServerProperties serverProperties;
+
     @Autowired
-    public EmailFormatter(FreeMarkerConfig freeMarkerConfig) {
+    public EmailFormatter(FreeMarkerConfig freeMarkerConfig, ServerProperties serverProperties) {
         this.freeMarkerConfig = freeMarkerConfig;
+        this.serverProperties = serverProperties;
     }
 
     //Proccess a FreeMarker template a produce a utf-8 string from it
@@ -119,18 +129,19 @@ public class EmailFormatter {
         return result;
     }
 
-    private String formatEmailTextFromForecast(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto, String cityName) throws IOException, TemplateException {
+    private String formatEmailTextFromForecast(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto, UserEntity user) throws IOException, TemplateException {
         //Day, that we will provide detailed info for - 1 is tomorrow, 0 today and so on
         int day = 1;
         DayInfoForEmailDto dayInfoForEmailDto = getInfoForDayFromWeatherApiResponse(openMeteoWeatherForecastResponseDto);
         Template template = freeMarkerConfig.getConfig().getTemplate("weather_email_text_format.ftl");
         Map root = new HashMap();
         root.put("day", LocalDate.from(openMeteoWeatherForecastResponseDto.getHourly().getTime().get(day * 24)));
-        root.put("city", cityName);
+        root.put("city", user.getCity().getName());
         root.put("importantWeatherCodes", formatImportantCodeHoursOfDay(dayInfoForEmailDto.getImportantWeatherCodes()));
         root.put("morningTemperature", dayInfoForEmailDto.getAverageMoningTemperature());
         root.put("noonTemperature", dayInfoForEmailDto.getAverageNoonTemperature());
         root.put("afternoonTemperature", dayInfoForEmailDto.getAverageAfternoonTemperature());
+        root.put("unsubscribeUrl", baseURL + "/user/deactivate/" + user.getDeactivationCode());
         return this.processTemplate(template, root);
     }
 
@@ -149,7 +160,9 @@ public class EmailFormatter {
         return result;
     }
 
-    private String formatHeaderTextForEmail(DayInfoForEmailDto dayInfoForEmailDto, String cityName) throws IOException, TemplateException {
+    //The email headers for the one city are the same, so we can cache them
+    @Cacheable(value = "cityEmailHeaderCache", keyGenerator = "defaultKeyGenerator")
+    public String formatHeaderTextForEmail(DayInfoForEmailDto dayInfoForEmailDto, String cityName) throws IOException, TemplateException {
         Template template = freeMarkerConfig.getConfig().getTemplate("weather_email_header_format.ftl");
         Map root = new HashMap();
         root.put("city", cityName);
@@ -160,13 +173,11 @@ public class EmailFormatter {
         return this.processTemplate(template, root);
     }
 
-    //The emails for the one city are the same, so we can cache them
-    @Cacheable(value = "cityEmailCache", keyGenerator = "defaultKeyGenerator")
-    public EmailDto fillEmailDtoWithWeather(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto, String cityName) throws TemplateException, IOException {
+    public EmailDto fillEmailDtoWithWeather(OpenMeteoWeatherForecastResponseDto openMeteoWeatherForecastResponseDto, UserEntity user) throws TemplateException, IOException {
         EmailDto emailDto = new EmailDto();
         DayInfoForEmailDto dayInfoForEmailDto = getInfoForDayFromWeatherApiResponse(openMeteoWeatherForecastResponseDto);
-        emailDto.setText(formatEmailTextFromForecast(openMeteoWeatherForecastResponseDto, cityName));
-        emailDto.setSubject(formatHeaderTextForEmail(dayInfoForEmailDto, cityName));
+        emailDto.setText(formatEmailTextFromForecast(openMeteoWeatherForecastResponseDto, user));
+        emailDto.setSubject(formatHeaderTextForEmail(dayInfoForEmailDto, user.getCity().getName()));
         return emailDto;
     }
 

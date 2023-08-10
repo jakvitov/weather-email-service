@@ -16,7 +16,7 @@ public class GeocodingApiClientServiceTest {
     private GeocodingApiClientService geocodingApiClientService;
 
     @Test
-//    @Disabled
+    @Disabled
     public void geocodingApiClientServiceTest(){
         GeocodingCityInfoDto[] geocodingCityInfoDto = geocodingApiClientService.getGeocodesForCity("Praha", "CZ");
         assert geocodingCityInfoDto.length > 0;

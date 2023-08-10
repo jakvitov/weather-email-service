@@ -52,7 +52,7 @@ public class ScheduledEmailServiceImpl implements ScheduledEmailService{
         for (UserEntity user : activeUsers){
             //Due to redis caching, we can just ask for weather for each user instead of grouping the users by city
             OpenMeteoWeatherForecastResponseDto weatherForecastResponseDto = weatherApiClientService.getHourlyWeatherForecast(user.getCity().getCityId().getLatitude(), user.getCity().getCityId().getLongitude(), 2);
-            EmailDto emailDto = this.emailFormatter.fillEmailDtoWithWeather(weatherForecastResponseDto, user.getCity().getName());
+            EmailDto emailDto = this.emailFormatter.fillEmailDtoWithWeather(weatherForecastResponseDto, user);
             emailDto.setFrom(emailBotName);
             emailDto.setDest(user.getEmail());
             this.emailService.sendEmailWithRetryCount(emailDto, retryCount, retryDelay);
