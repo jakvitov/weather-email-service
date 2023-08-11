@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class UserCreationRequest {
+public class UpdateUserRequest {
 
     @NotNull
     @Email
@@ -20,7 +20,7 @@ public class UserCreationRequest {
     @Size(min = 2, max = 3)
     private String countryISO;
 
-    public UserCreationRequest() {
+    public UpdateUserRequest() {
     }
 
     public String getEmail() {

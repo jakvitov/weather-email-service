@@ -1,8 +1,6 @@
 package cz.jakvitov.wes.controller;
 
-import cz.jakvitov.wes.dto.controller.ActivationUserResponse;
-import cz.jakvitov.wes.dto.controller.UserCreationRequest;
-import cz.jakvitov.wes.dto.controller.UserCreationResponse;
+import cz.jakvitov.wes.dto.controller.*;
 import cz.jakvitov.wes.dto.types.ErrorLevel;
 import cz.jakvitov.wes.dto.types.ResponseState;
 import cz.jakvitov.wes.exception.EmailAlreadyInDatabaseException;
@@ -86,4 +84,23 @@ public class UserController {
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(500));
         }
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody @Valid UpdateUserRequest request){
+        UpdateUserResponse response = new UpdateUserResponse();;
+        try {
+            response = userService.updateUser(request);
+            return new ResponseEntity<>(response, HttpStatus.valueOf(200));
+        } catch (UserNotFoundException exc) {
+            response.setResponseState(ResponseState.USER_NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(404));
+        } catch (Exception exception) {
+            Long errorId = monitoredErrorService.monitorError(exception, "Error during user update.", ErrorLevel.ERROR);
+            response.setResponseState(ResponseState.ERROR);
+            response.setErrorId(errorId);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(500));
+        }
+    }
+
+
 }

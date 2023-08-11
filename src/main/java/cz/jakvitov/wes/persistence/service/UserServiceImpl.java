@@ -1,8 +1,6 @@
 package cz.jakvitov.wes.persistence.service;
 
-import cz.jakvitov.wes.dto.controller.ActivationUserResponse;
-import cz.jakvitov.wes.dto.controller.UserCreationRequest;
-import cz.jakvitov.wes.dto.controller.UserCreationResponse;
+import cz.jakvitov.wes.dto.controller.*;
 import cz.jakvitov.wes.dto.types.ResponseState;
 import cz.jakvitov.wes.exception.EmailAlreadyInDatabaseException;
 import cz.jakvitov.wes.exception.UserNotFoundException;
@@ -64,7 +62,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setPassword(password);
         userEntity.setChanged(LocalDateTime.now());
         userEntity.setCity(city);
-        userEntity.setDeactivationCode(UUID.randomUUID().toString());
+        userEntity.setDeactivationCode(null);
         userEntity.setActivationCode(UUID.randomUUID().toString());
         city.getUsers().add(userEntity);
         userEntity = userRepository.save(userEntity);
@@ -129,7 +127,7 @@ public class UserServiceImpl implements UserService {
         user.setActive(false);
         //We generate new activation and deactivation codes
         user.setActivationCode(UUID.randomUUID().toString());
-        user.setDeactivationCode(UUID.randomUUID().toString());
+        user.setDeactivationCode(null);
         userRepository.save(user);
         response.setUserEmail(user.getEmail());
         response.setResponseState(ResponseState.OK);
@@ -154,7 +152,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setActive(true);
         //We generate new activation and deactivation codes
-        user.setActivationCode(UUID.randomUUID().toString());
+        user.setActivationCode(null);
         user.setDeactivationCode(UUID.randomUUID().toString());
         userRepository.save(user);
         response.setUserEmail(user.getEmail());
@@ -168,6 +166,18 @@ public class UserServiceImpl implements UserService {
         UserEntity user = this.createUser(userCreationRequest.getEmail(), userCreationRequest.getCityName(), userCreationRequest.getCountryISO(), password);
         UserCreationResponse response = new UserCreationResponse();
         response.setEmail(user.getEmail());
+        response.setResponseState(ResponseState.OK);
+        return response;
+    }
+
+    @Override
+    public UpdateUserResponse updateUser(UpdateUserRequest request) {
+        UserEntity user = this.updateUserCity(request.getEmail(), request.getCityName(), request.getCountryISO());
+        UpdateUserResponse response = new UpdateUserResponse();
+        response.setLatitude(user.getCity().getCityId().getLatitude());
+        response.setLongitude(user.getCity().getCityId().getLongitude());
+        response.setCityName(user.getCity().getName());
+        response.setCountryISO(user.getCity().getCountryISO());
         response.setResponseState(ResponseState.OK);
         return response;
     }
