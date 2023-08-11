@@ -102,5 +102,22 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<ActivationUserResponse> deleteUser(@RequestBody @Valid DeleteUserRequest request){
+        ActivationUserResponse response = new ActivationUserResponse();
+        try {
+            response = userService.deleteUser(request);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
+        }
+        catch (UserNotFoundException exc){
+            response.setResponseState(ResponseState.USER_NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(404));
+        } catch (Exception exception) {
+            Long errorId = monitoredErrorService.monitorError(exception, "Error during user deletion.", ErrorLevel.ERROR);
+            response.setResponseState(ResponseState.ERROR);
+            response.setErrorId(errorId);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(500));
+        }
+    }
 
 }

@@ -23,4 +23,6 @@ public interface UserService {
 
     public UpdateUserResponse updateUser(UpdateUserRequest request);
 
+    public ActivationUserResponse deleteUser(DeleteUserRequest request);
+
 }

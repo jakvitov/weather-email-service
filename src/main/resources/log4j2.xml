@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+
+        <Console name="dev" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d [%t] %-5level %c{2} [TRACE_ID: %X{TRACE_ID}] - %msg%n"/>
+        </Console>
+
+        <File name="prod" fileName="logs/application.log" append="true">
+            <JSONLayout complete="false" compact="true" eventEol="true">
+                <KeyValuePair key="TRACE_ID: " value="%X{TRACE_ID}"/>
+            </JSONLayout>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <!-- Use 'dev' appender for 'dev' profile -->
+            <AppenderRef ref="dev" level="trace"/>
+            <!-- Use 'prod' appender for other profiles -->
+            <AppenderRef ref="prod" level="info"/>
+        </Root>
+    </Loggers>
+</Configuration>

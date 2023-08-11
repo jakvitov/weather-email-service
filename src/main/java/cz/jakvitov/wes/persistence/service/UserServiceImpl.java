@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.transform.OutputKeys;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -99,6 +100,9 @@ public class UserServiceImpl implements UserService {
         if (userEntities.isEmpty()){
             throw new UserNotFoundException(email);
         }
+        if (userEntities.size() > 1){
+            throw new RuntimeException("Multiple users found with one deactivation code:"  + email.hashCode());
+        }
         userRepository.delete(userEntities.get(0));
     }
 
@@ -162,6 +166,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserCreationResponse crateUser(UserCreationRequest userCreationRequest) {
+        logger.error("Neco neco");
         String password = passwordEncoder.encode(userCreationRequest.getPassword());
         UserEntity user = this.createUser(userCreationRequest.getEmail(), userCreationRequest.getCityName(), userCreationRequest.getCountryISO(), password);
         UserCreationResponse response = new UserCreationResponse();
@@ -172,12 +177,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UpdateUserResponse updateUser(UpdateUserRequest request) {
+        logger.error("Neco neco");
         UserEntity user = this.updateUserCity(request.getEmail(), request.getCityName(), request.getCountryISO());
         UpdateUserResponse response = new UpdateUserResponse();
         response.setLatitude(user.getCity().getCityId().getLatitude());
         response.setLongitude(user.getCity().getCityId().getLongitude());
         response.setCityName(user.getCity().getName());
         response.setCountryISO(user.getCity().getCountryISO());
+        response.setResponseState(ResponseState.OK);
+        return response;
+    }
+
+    @Override
+    public ActivationUserResponse deleteUser(DeleteUserRequest request) {
+        logger.error("Neco neco");
+        String email = request.getEmail();
+        this.deleteUser(request.getEmail());
+        ActivationUserResponse response = new ActivationUserResponse();
+        response.setUserEmail(email);
         response.setResponseState(ResponseState.OK);
         return response;
     }
