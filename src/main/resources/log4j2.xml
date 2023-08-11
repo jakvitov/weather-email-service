@@ -8,7 +8,7 @@
 
         <File name="prod" fileName="logs/application.log" append="true">
             <JSONLayout complete="false" compact="true" eventEol="true">
-                <KeyValuePair key="TRACE_ID: " value="%X{TRACE_ID}"/>
+                <KeyValuePair key="TRACE_ID: " value="$${ctx:TRACE_ID}"/>
             </JSONLayout>
         </File>
     </Appenders>
