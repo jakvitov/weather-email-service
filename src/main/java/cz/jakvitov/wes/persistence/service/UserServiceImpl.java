@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserEntity createUser(String email, String cityName, String countryISO, String password) {
+    public UserEntity createUser(String email, String cityName, String countryISO) {
         if (!userRepository.findAllByEmail(email).isEmpty()){
             throw new EmailAlreadyInDatabaseException(email);
         }
@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = new UserEntity();
         userEntity.setActive(false);
         userEntity.setEmail(email);
-        userEntity.setPassword(password);
         userEntity.setChanged(LocalDateTime.now());
         userEntity.setCity(city);
         userEntity.setDeactivationCode(null);
@@ -166,9 +165,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserCreationResponse crateUser(UserCreationRequest userCreationRequest) {
-        logger.error("Neco neco");
-        String password = passwordEncoder.encode(userCreationRequest.getPassword());
-        UserEntity user = this.createUser(userCreationRequest.getEmail(), userCreationRequest.getCityName(), userCreationRequest.getCountryISO(), password);
+        UserEntity user = this.createUser(userCreationRequest.getEmail(), userCreationRequest.getCityName(), userCreationRequest.getCountryISO());
         UserCreationResponse response = new UserCreationResponse();
         response.setEmail(user.getEmail());
         response.setResponseState(ResponseState.OK);
@@ -177,7 +174,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UpdateUserResponse updateUser(UpdateUserRequest request) {
-        logger.error("Neco neco");
         UserEntity user = this.updateUserCity(request.getEmail(), request.getCityName(), request.getCountryISO());
         UpdateUserResponse response = new UpdateUserResponse();
         response.setLatitude(user.getCity().getCityId().getLatitude());
@@ -190,12 +186,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ActivationUserResponse deleteUser(DeleteUserRequest request) {
-        logger.error("Neco neco");
         String email = request.getEmail();
         this.deleteUser(request.getEmail());
         ActivationUserResponse response = new ActivationUserResponse();
         response.setUserEmail(email);
         response.setResponseState(ResponseState.OK);
         return response;
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo(String email) {
+        UserInfoResponse userInfoResponse = new UserInfoResponse();
+        List<UserEntity> userEntities = this.userRepository.findAllByEmail(email);
+        if (userEntities.isEmpty()){
+            userInfoResponse.setResponseState(ResponseState.USER_NOT_FOUND);
+            return userInfoResponse;
+        }
+        if (userEntities.size() > 1){
+            throw new RuntimeException("Multiple users found with email: "  + email.hashCode());
+        }
+        UserEntity user = userEntities.get(0);
+        userInfoResponse.setActive(user.getActive());
+        userInfoResponse.setCity(user.getCity().getName());
+        userInfoResponse.setLatitude(user.getCity().getCityId().getLatitude());
+        userInfoResponse.setLongitude(user.getCity().getCityId().getLongitude());
+        userInfoResponse.setCountryISO(user.getCity().getCountryISO());
+        userInfoResponse.setResponseState(ResponseState.OK);
+        return userInfoResponse;
     }
 }

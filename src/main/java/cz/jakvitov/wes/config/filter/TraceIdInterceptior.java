@@ -20,7 +20,7 @@ public class TraceIdInterceptior implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String traceId = request.getParameter("TRACE_ID");
+        String traceId = request.getHeader("TRACE_ID");
         if (traceId == null){
             traceId = UUID.randomUUID().toString();
             logger.warn("Request missing TRACE_ID. Generating: " + traceId);

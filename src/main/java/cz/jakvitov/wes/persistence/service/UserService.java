@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService {
 
-    public UserEntity createUser(String email, String cityName, String countryISO, String password);
+    public UserEntity createUser(String email, String cityName, String countryISO);
 
     public UserEntity updateUserCity(String email, String cityName, String countryISO);
 
@@ -24,5 +24,7 @@ public interface UserService {
     public UpdateUserResponse updateUser(UpdateUserRequest request);
 
     public ActivationUserResponse deleteUser(DeleteUserRequest request);
+
+    public UserInfoResponse getUserInfo(String email);
 
 }

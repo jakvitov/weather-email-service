@@ -3,6 +3,7 @@ package cz.jakvitov.wes.controller;
 import cz.jakvitov.wes.dto.controller.*;
 import cz.jakvitov.wes.dto.types.ErrorLevel;
 import cz.jakvitov.wes.dto.types.ResponseState;
+import cz.jakvitov.wes.exception.CityNotFoundException;
 import cz.jakvitov.wes.exception.EmailAlreadyInDatabaseException;
 import cz.jakvitov.wes.exception.UserNotFoundException;
 import cz.jakvitov.wes.persistence.service.MonitoredErrorService;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -77,6 +80,11 @@ public class UserController {
             response.setEmail(request.getEmail());
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(409));
         }
+        catch (CityNotFoundException exc){
+            response.setResponseState(ResponseState.CITY_NOT_FOUND);
+            response.setEmail(request.getEmail());
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(404));
+        }
         catch (Exception exc){
             Long errorId = monitoredErrorService.monitorError(exc, "Error during user creation.", ErrorLevel.ERROR);
             response.setResponseState(ResponseState.ERROR);
@@ -107,6 +115,24 @@ public class UserController {
         ActivationUserResponse response = new ActivationUserResponse();
         try {
             response = userService.deleteUser(request);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
+        }
+        catch (UserNotFoundException exc){
+            response.setResponseState(ResponseState.USER_NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(404));
+        } catch (Exception exception) {
+            Long errorId = monitoredErrorService.monitorError(exception, "Error during user deletion.", ErrorLevel.ERROR);
+            response.setResponseState(ResponseState.ERROR);
+            response.setErrorId(errorId);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(500));
+        }
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal Jwt principal){
+        UserInfoResponse response = new UserInfoResponse();
+        try {
+            response = userService.getUserInfo(principal.getClaimAsString("email"));
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
         }
         catch (UserNotFoundException exc){
